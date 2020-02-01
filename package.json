@@ -1,0 +1,19 @@
+{
+  "name": "pluralsight-project-promises",
+  "version": "1.0.0",
+  "description": "A PluralSight Project Audition",
+  "main": " ",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/sohamkamani/pluralsight-project-promises.git"
+  },
+  "author": "Soham Kamani",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sohamkamani/pluralsight-project-promises/issues"
+  },
+  "homepage": "https://github.com/sohamkamani/pluralsight-project-promises#readme"
+}
