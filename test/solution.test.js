@@ -5,13 +5,16 @@ const fs = require('fs')
 
 const taskTests = [
         fileContents => {
+                assert.equal(fileContents instanceof Buffer, true, 'Are you returning the file contents?')
                 assert.equal(fileContents.toString(), 'hello world!', 'Are you reading sample1.txt?')
         },
         fileContents => {
                 assert.equal(typeof fileContents, 'number', 'Are you returning a number?')
                 assert.equal(fileContents, 12, 'Are you returning the correct character length?')
         },
-        () => { },
+        () => {
+                assert.fail('')
+        },
         fileContents => {
                 assert.equal(typeof fileContents, 'number', 'Are you returning a number?')
                 assert.notEqual(fileContents, 12, 'Are you returning the character length of both the files (sample1.txt and sample2.txt)?')
@@ -19,12 +22,13 @@ const taskTests = [
         }
 ]
 
-const doAllLaterTaskTestsThrowError = (fileContents, i) => {
-        if (i >= (taskTests.length - 1)) {
+const doAllLaterTaskTestsThrowError = (fileContents, n) => {
+        if (n >= (taskTests.length - 1)) {
                 return true
         }
         let errors = 0
-        for (; i < taskTests.length; i++) {
+
+        for (let i = n; i < taskTests.length; i++) {
                 const testFn = taskTests[i]
                 try {
                         testFn(fileContents)
@@ -32,7 +36,7 @@ const doAllLaterTaskTestsThrowError = (fileContents, i) => {
                         errors++
                 }
         }
-        return errors >= (taskTests.length - i)
+        return errors >= (taskTests.length - n)
 }
 
 const runTaskTests = i => fileContents => {
@@ -66,14 +70,28 @@ fileParser('src/solution.js', ({ containsMethodCall, memberExpressions }) => {
         })
 
         it('Task 3: Handle errors', function () {
-                oldReadFile = fs.promises.readFile
-                fs.promises.readFile = () => new Promise((_, reject) => {
-                        reject(new Error('failure for test'))
-                })
+                const oldReadFile = fs.promises.readFile
+                fs.promises.readFile = () => {
+                        fs.promises.readFile = oldReadFile
+                        return new Promise((_, reject) => {
+                                reject(new Error('failure for test'))
+                        })
+                }
+                const oldConsoleError = console.error
+                let calledMsg = null
+                console.error = (logTxt) => {
+                        calledMsg = logTxt
+                        console.error = oldConsoleError
+                }
                 return fn()
-                        .then(() => { })
+                        .then(() => {
+                                assert.equal(calledMsg, 'Error: failure for test', 'Are you logging the error via console.error?')
+                        })
                         .catch(err => {
-                                assert.equal(err.toString(), 'Error: failure for test')
+                                if (err.code === 'ERR_ASSERTION') {
+                                        throw err
+                                }
+                                assert.fail('are you handling promise errors with the "catch" method?')
                                 fs.promises.readFile = oldReadFile
                         })
         })
