@@ -32,7 +32,7 @@ const doAllLaterTaskTestsThrowError = (fileContents, i) => {
                         errors++
                 }
         }
-        return errors >= (taskTests - i)
+        return errors >= (taskTests.length - i)
 }
 
 const runTaskTests = i => fileContents => {
